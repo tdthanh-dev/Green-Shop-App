@@ -11,6 +11,9 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/featureadvancedsearch" />
+            <option value="$PROJECT_DIR$/featureanalytics" />
+            <option value="$PROJECT_DIR$/featurepremium" />
           </set>
         </option>
       </GradleProjectSettings>

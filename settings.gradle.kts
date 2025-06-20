@@ -21,3 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "GreenShop"
 include(":app")
+include(":featureanalytics")
+include(":featurepremium")
+include(":featureadvancedsearch")

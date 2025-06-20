@@ -16,32 +16,82 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = SpringBootGreen,
-    secondary = GreenAccent,
-    tertiary = Pink80
+    primary = Green60,
+    onPrimary = White,
+    primaryContainer = Green20,
+    onPrimaryContainer = Green80,
+    
+    secondary = FreshGreen,
+    onSecondary = White,
+    secondaryContainer = LimeGreen,
+    onSecondaryContainer = Grey90,
+    
+    tertiary = Mint,
+    onTertiary = White,
+    
+    background = Grey90,
+    onBackground = White,
+    surface = Grey80,
+    onSurface = White,
+    
+    surfaceVariant = Grey60,
+    onSurfaceVariant = Grey20,
+    
+    outline = Grey40,
+    outlineVariant = Grey60,
+    
+    error = ErrorRed,
+    onError = White,
+    errorContainer = Red80,
+    onErrorContainer = White
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = SpringBootGreen,
-    secondary = GreenAccent,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = Green80,
+    onPrimary = White,
+    primaryContainer = LightGreen,
+    onPrimaryContainer = Green20,
+    
+    secondary = FreshGreen,
+    onSecondary = White,
+    secondaryContainer = VeryLightGreen,
+    onSecondaryContainer = Green40,
+    
+    tertiary = Mint,
+    onTertiary = White,
+    tertiaryContainer = LightGreen,
+    onTertiaryContainer = Green20,
+    
+    background = White,
+    onBackground = Grey90,
+    surface = White,
+    onSurface = Grey90,
+    
+    surfaceVariant = Grey10,
+    onSurfaceVariant = Grey80,
+    
+    outline = Grey40,
+    outlineVariant = Grey20,
+    
+    error = ErrorRed,
+    onError = White,
+    errorContainer = Grey10,
+    onErrorContainer = ErrorRed,
+    
+    // Additional colors for better UX
+    inverseSurface = Grey90,
+    inverseOnSurface = White,
+    inversePrimary = Green60,
+    
+    surfaceTint = Green80,
+    scrim = Grey90.copy(alpha = 0.5f)
 )
 
 @Composable
 fun GreenShopTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    // Dynamic color disabled for consistent green branding
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

@@ -10,4 +10,17 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+    
+    <!-- Dynamic Feature Titles -->
+    <string name="feature_analytics_title">Analytics Feature</string>
+    <string name="feature_premium_title">Premium Feature</string>
+    <string name="feature_search_title">Advanced Search Feature</string>
+    
+    <!-- Dynamic Feature Module Titles -->
+    <string name="title_featureanalytics">Analytics Feature</string>
+    <string name="title_featurepremium">Premium Feature</string>
+    <string name="title_featureadvancedsearch">Advanced Search Feature</string>
+    
+    <!-- Split Install Features -->
+    <string name="splitinstall_features">featureanalytics,featurepremium,featureadvancedsearch</string>
 </resources>
