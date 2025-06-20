@@ -1,9 +1,11 @@
 package com.tdthanh.greenshop.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -20,42 +22,57 @@ import com.tdthanh.greenshop.ui.components.ProductCard
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryScreen(
-    category: ProductCategory,
     viewModel: GreenShopViewModel,
     onProductClick: (Product) -> Unit,
-    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val products by viewModel.products.collectAsStateWithLifecycle()
-    val categoryProducts = products.filter { it.category == category }
+    val selectedCategory by viewModel.selectedCategory.collectAsStateWithLifecycle()
+    val categories = ProductCategory.values()
     
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { 
-                    Text(
-                        text = "${category.emoji} ${category.displayName}",
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Quay lại")
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
+        // Header
+        TopAppBar(
+            title = { 
+                Text(
+                    text = "Danh mục sản phẩm",
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        )
+        
+        // Category Filter
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(categoryProducts) { product ->
+            items(categories) { category ->
+                FilterChip(
+                    onClick = { viewModel.selectCategory(category) },
+                    label = {
+                        Text("${category.emoji} ${category.displayName}")
+                    },
+                    selected = selectedCategory == category
+                )
+            }
+        }
+        
+        // Products Grid
+        val filteredProducts = if (selectedCategory == ProductCategory.ALL) {
+            products
+        } else {
+            products.filter { it.category == selectedCategory }
+        }
+          LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(filteredProducts) { product ->
                 ProductCard(
                     product = product,
                     onProductClick = onProductClick,

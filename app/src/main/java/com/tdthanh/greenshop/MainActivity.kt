@@ -6,8 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +21,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
 import com.tdthanh.greenshop.data.ProductRepository
 import com.tdthanh.greenshop.feature.FeatureDownloadManager
@@ -47,9 +49,23 @@ class MainActivity : ComponentActivity() {
 fun GreenShopApp() {
     val navController = rememberNavController()
     val viewModel: GreenShopViewModel = viewModel()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    // Danh sách các route hiển thị bottom navigation
+    val bottomNavRoutes = listOf("home", "categories", "cart", "profile")
+    val showBottomNav = currentRoute in bottomNavRoutes
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        bottomBar = {
+            if (showBottomNav) {
+                BottomNavigationBar(
+                    navController = navController,
+                    currentRoute = currentRoute ?: "home"
+                )
+            }
+        }
     ) { innerPadding ->
         GreenShopNavHost(
             navController = navController,
@@ -75,9 +91,29 @@ fun GreenShopNavHost(
                 onProductClick = { product ->
                     navController.navigate("product_detail/${product.id}")
                 },
-                onCartClick = {
-                    navController.navigate("cart")
-                },
+                onFeaturesClick = {
+                    navController.navigate("features")
+                }
+            )
+        }
+        
+        composable("categories") {
+            CategoryScreen(
+                viewModel = viewModel,
+                onProductClick = { product ->
+                    navController.navigate("product_detail/${product.id}")
+                }
+            )
+        }
+        
+        composable("cart") {
+            CartScreen(
+                viewModel = viewModel
+            )
+        }
+        
+        composable("profile") {
+            ProfileScreen(
                 onFeaturesClick = {
                     navController.navigate("features")
                 }
@@ -97,13 +133,9 @@ fun GreenShopNavHost(
                 }
             )
         }
-        
-        composable("cart") {
+          composable("cart") {
             CartScreen(
-                viewModel = viewModel,
-                onBackClick = {
-                    navController.popBackStack()
-                }
+                viewModel = viewModel
             )
         }
         
@@ -371,4 +403,110 @@ fun DynamicFeaturePlaceholder(
             }
         }
     }
+}
+
+// Data class cho navigation items
+data class BottomNavItem(
+    val title: String,
+    val selectedIcon: androidx.compose.ui.graphics.vector.ImageVector,
+    val unselectedIcon: androidx.compose.ui.graphics.vector.ImageVector,
+    val route: String,
+    val badgeCount: Int? = null
+)
+
+@Composable
+fun BottomNavigationBar(
+    navController: NavHostController,
+    currentRoute: String,
+    viewModel: GreenShopViewModel = viewModel()
+) {
+    val cartItems by viewModel.cartItems.collectAsStateWithLifecycle()
+    
+    val items = listOf(
+        BottomNavItem(
+            title = "Trang chủ",
+            selectedIcon = Icons.Filled.Home,
+            unselectedIcon = Icons.Outlined.Home,
+            route = "home"
+        ),
+        BottomNavItem(
+            title = "Danh mục",
+            selectedIcon = Icons.Filled.Category,
+            unselectedIcon = Icons.Outlined.Category,
+            route = "categories"
+        ),
+        BottomNavItem(
+            title = "Giỏ hàng",
+            selectedIcon = Icons.Filled.ShoppingCart,
+            unselectedIcon = Icons.Outlined.ShoppingCart,
+            route = "cart",
+            badgeCount = if (cartItems.isNotEmpty()) viewModel.getCartItemCount() else null
+        ),
+        BottomNavItem(
+            title = "Hồ sơ",
+            selectedIcon = Icons.Filled.Person,
+            unselectedIcon = Icons.Outlined.Person,
+            route = "profile"
+        )
+    )
+
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 8.dp
+    ) {
+        items.forEach { item ->
+            NavigationBarItem(
+                icon = {
+                    BadgedBox(
+                        badge = {
+                            if (item.badgeCount != null && item.badgeCount > 0) {
+                                Badge {
+                                    Text(
+                                        text = item.badgeCount.toString(),
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (currentRoute == item.route) {
+                                item.selectedIcon
+                            } else {
+                                item.unselectedIcon
+                            },
+                            contentDescription = item.title
+                        )
+                    }
+                },
+                label = {
+                    Text(
+                        text = item.title,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                },
+                selected = currentRoute == item.route,
+                onClick = {
+                    if (currentRoute != item.route) {
+                        navController.navigate(item.route) {
+                            // Pop up to the start destination to avoid building up a large stack
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            // Avoid multiple copies of the same destination when reselecting the same item
+                            launchSingleTop = true
+                            // Restore state when reselecting a previously selected item
+                            restoreState = true
+                        }
+                    }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
+        }    }
 }

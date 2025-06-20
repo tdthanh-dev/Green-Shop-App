@@ -45,7 +45,9 @@
             "label": "Build Debug APKs",
             "type": "shell",
             "command": "./gradlew",
-            "args": ["assembleDebug"],
+            "args": [
+                "assembleDebug"
+            ],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -59,7 +61,11 @@
             "label": "Build Release Bundle",
             "type": "shell",
             "command": "./gradlew",
-            "args": ["bundleRelease", "-x", "lintVitalAnalyzeRelease"],
+            "args": [
+                "bundleRelease",
+                "-x",
+                "lintVitalAnalyzeRelease"
+            ],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -73,7 +79,10 @@
             "label": "Clean & Rebuild",
             "type": "shell",
             "command": "./gradlew",
-            "args": ["clean", "assembleDebug"],
+            "args": [
+                "clean",
+                "assembleDebug"
+            ],
             "group": "build",
             "presentation": {
                 "echo": true,

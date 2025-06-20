@@ -17,6 +17,7 @@ data class Product(
 )
 
 enum class ProductCategory(val displayName: String, val emoji: String) {
+    ALL("Tất cả", "🛒"),
     VEGETABLES("Rau củ", "🥬"),
     FRUITS("Trái cây", "🍎"),
     HERBS("Rau thơm", "🌿"),

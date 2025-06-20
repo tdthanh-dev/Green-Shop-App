@@ -35,7 +35,6 @@ import java.util.*
 fun HomeScreen(
     viewModel: GreenShopViewModel,
     onProductClick: (Product) -> Unit,
-    onCartClick: () -> Unit,
     onFeaturesClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -74,24 +73,6 @@ fun HomeScreen(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
-                
-                BadgedBox(
-                    badge = {
-                        if (cartItems.isNotEmpty()) {
-                            Badge {
-                                Text("${viewModel.getCartItemCount()}")
-                            }
-                        }
-                    }
-                ) {
-                    IconButton(onClick = onCartClick) {
-                        Icon(
-                            Icons.Default.ShoppingCart,
-                            contentDescription = "Giỏ hàng",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
             },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background
@@ -113,10 +94,11 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Categories
-            item {
-                CategoriesSection(
+            item {                CategoriesSection(
                     selectedCategory = selectedCategory,
-                    onCategorySelected = viewModel::filterByCategory
+                    onCategorySelected = { category ->
+                        viewModel.selectCategory(category)
+                    }
                 )
             }
 
@@ -223,8 +205,8 @@ private fun SearchBar(
 
 @Composable
 private fun CategoriesSection(
-    selectedCategory: ProductCategory?,
-    onCategorySelected: (ProductCategory?) -> Unit,
+    selectedCategory: ProductCategory,
+    onCategorySelected: (ProductCategory) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -237,16 +219,15 @@ private fun CategoriesSection(
 
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            item {
+        ) {            item {
                 CategoryChip(
                     text = "Tất cả",
-                    emoji = "🛒",
-                    isSelected = selectedCategory == null,
-                    onClick = { onCategorySelected(null) }
+                    emoji = "🛒", 
+                    isSelected = selectedCategory == ProductCategory.ALL,
+                    onClick = { onCategorySelected(ProductCategory.ALL) }
                 )
             }
-            items(ProductCategory.values()) { category ->
+            items(ProductCategory.values().filter { it != ProductCategory.ALL }) { category ->
                 CategoryChip(
                     text = category.displayName,
                     emoji = category.emoji,

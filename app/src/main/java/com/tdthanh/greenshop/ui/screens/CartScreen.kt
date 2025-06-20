@@ -24,7 +24,6 @@ import java.util.*
 @Composable
 fun CartScreen(
     viewModel: GreenShopViewModel,
-    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val cartItems by viewModel.cartItems.collectAsStateWithLifecycle()
@@ -32,19 +31,13 @@ fun CartScreen(
 
     Column(
         modifier = modifier.fillMaxSize()
-    ) {
-        // Header
+    ) {        // Header
         TopAppBar(
             title = {
                 Text(
                     "Giỏ hàng",
                     fontWeight = FontWeight.Bold
                 )
-            },
-            navigationIcon = {
-                IconButton(onClick = onBackClick) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Quay lại")
-                }
             },
             actions = {
                 if (cartItems.isNotEmpty()) {

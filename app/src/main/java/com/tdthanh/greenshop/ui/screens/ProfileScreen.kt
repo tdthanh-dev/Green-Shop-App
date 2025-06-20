@@ -17,41 +17,41 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.tdthanh.greenshop.viewmodel.GreenShopViewModel
 import com.tdthanh.greenshop.model.User
-import com.tdthanh.greenshop.model.Order
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    viewModel: GreenShopViewModel,    onNavigateBack: () -> Unit,
+    onFeaturesClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val user: User by viewModel.currentUser.collectAsStateWithLifecycle()
-    val orders: List<Order> by viewModel.orders.collectAsStateWithLifecycle()
+    // Sử dụng fake data cho demo
+    val user = User(
+        id = "1",
+        name = "Nguyễn Văn A",
+        email = "nguyenvana@example.com",
+        phone = "0123456789",
+        address = "123 Đường ABC, Quận 1, TP.HCM",
+        points = 1250,
+        isVip = true
+    )
     
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Hồ sơ cá nhân") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Quay lại")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /* Edit profile */ }) {
-                        Icon(Icons.Default.Edit, contentDescription = "Chỉnh sửa")
-                    }
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
+        // Header
+        TopAppBar(
+            title = { Text("Hồ sơ cá nhân") },
+            actions = {
+                IconButton(onClick = { /* Edit profile */ }) {
+                    Icon(Icons.Default.Edit, contentDescription = "Chỉnh sửa")
                 }
-            )
-        }
-    ) { paddingValues ->
+            }
+        )
+        
         LazyColumn(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -62,11 +62,7 @@ fun ProfileScreen(
             
             // Quick Stats
             item {
-                QuickStatsCard(
-                    ordersCount = orders.size,
-                    points = user.points,
-                    isVip = user.isVip
-                )
+                QuickStatsCard()
             }
             
             // Menu Items
@@ -78,10 +74,10 @@ fun ProfileScreen(
                 )
             }
             
-            items(getMenuItems()) { menuItem ->
+            items(getMenuItems(onFeaturesClick)) { menuItem ->
                 MenuItemCard(
                     item = menuItem,
-                    onClick = { /* Handle click */ }
+                    onClick = menuItem.onClick
                 )
             }
         }
@@ -89,7 +85,7 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun UserInfoCard(user: com.tdthanh.greenshop.model.User) {
+private fun UserInfoCard(user: User) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -156,11 +152,7 @@ private fun UserInfoCard(user: com.tdthanh.greenshop.model.User) {
 }
 
 @Composable
-private fun QuickStatsCard(
-    ordersCount: Int,
-    points: Int,
-    isVip: Boolean
-) {
+private fun QuickStatsCard() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -181,7 +173,7 @@ private fun QuickStatsCard(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = ordersCount.toString(),
+                    text = "12",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -209,7 +201,7 @@ private fun QuickStatsCard(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = points.toString(),
+                    text = "1,250",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -225,11 +217,7 @@ private fun QuickStatsCard(
         Card(
             modifier = Modifier.weight(1f),
             colors = CardDefaults.cardColors(
-                containerColor = if (isVip) {
-                    Color(0xFFFFD700).copy(alpha = 0.2f)
-                } else {
-                    MaterialTheme.colorScheme.surface
-                }
+                containerColor = Color(0xFFFFD700).copy(alpha = 0.2f)
             )
         ) {
             Column(
@@ -237,17 +225,17 @@ private fun QuickStatsCard(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(
-                    if (isVip) Icons.Default.WorkspacePremium else Icons.Default.Person,
+                    Icons.Default.WorkspacePremium,
                     contentDescription = null,
-                    tint = if (isVip) Color(0xFFFFD700) else MaterialTheme.colorScheme.primary,
+                    tint = Color(0xFFFFD700),
                     modifier = Modifier.size(32.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = if (isVip) "VIP" else "Thường",
+                    text = "VIP",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if (isVip) Color(0xFFFFD700) else MaterialTheme.colorScheme.primary
+                    color = Color(0xFFFFD700)
                 )
                 Text(
                     text = "Hạng thành viên",
@@ -310,12 +298,19 @@ private fun MenuItemCard(
 data class MenuItem(
     val title: String,
     val subtitle: String? = null,
-    val icon: ImageVector
+    val icon: ImageVector,
+    val onClick: () -> Unit = {}
 )
 
 // Sample data
-private fun getMenuItems(): List<MenuItem> {
+private fun getMenuItems(onFeaturesClick: () -> Unit): List<MenuItem> {
     return listOf(
+        MenuItem(
+            title = "Quản lý tính năng",
+            subtitle = "Tải về các tính năng bổ sung",
+            icon = Icons.Default.Extension,
+            onClick = onFeaturesClick
+        ),
         MenuItem(
             title = "Lịch sử đơn hàng",
             subtitle = "Xem các đơn hàng đã đặt",

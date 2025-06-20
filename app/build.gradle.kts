@@ -18,6 +18,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     
+    // Lint configuration
+    lint {
+        disable.add("PlaySdkIndexDeprecated")
+    }
+    
     // Dynamic Features
     dynamicFeatures += setOf(
         ":featureanalytics",

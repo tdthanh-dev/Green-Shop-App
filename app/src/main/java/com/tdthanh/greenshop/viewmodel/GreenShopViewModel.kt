@@ -25,18 +25,26 @@ class GreenShopViewModel : ViewModel() {
     
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
-    
-    private val _selectedCategory = MutableStateFlow<ProductCategory?>(null)
-    val selectedCategory: StateFlow<ProductCategory?> = _selectedCategory.asStateFlow()
+      private val _selectedCategory = MutableStateFlow<ProductCategory>(ProductCategory.ALL)
+    val selectedCategory: StateFlow<ProductCategory> = _selectedCategory.asStateFlow()
     
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
     
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-    
-    // User and orders data
-    private val _currentUser = MutableStateFlow(User())
+      // User and orders data
+    private val _currentUser = MutableStateFlow(
+        User(
+            id = "1",
+            name = "Nguyễn Văn A",
+            email = "nguyenvana@example.com",
+            phone = "0123456789",
+            address = "123 Đường ABC, Quận 1, TP.HCM",
+            points = 1250,
+            isVip = true
+        )
+    )
     val currentUser: StateFlow<User> = _currentUser.asStateFlow()
     
     private val _orders = MutableStateFlow<List<Order>>(emptyList())
@@ -70,12 +78,10 @@ class GreenShopViewModel : ViewModel() {
             // Sample orders data - in real app, this would come from repository
             _orders.value = emptyList() // You can add sample orders here if needed
         }
-    }
-
-    fun filterByCategory(category: ProductCategory?) {
+    }    fun filterByCategory(category: ProductCategory) {
         _selectedCategory.value = category
         viewModelScope.launch {
-            _products.value = if (category != null) {
+            _products.value = if (category != ProductCategory.ALL) {
                 ProductRepository.getProductsByCategory(category)
             } else {
                 ProductRepository.products
@@ -136,15 +142,17 @@ class GreenShopViewModel : ViewModel() {
                 _cartItems.value = currentCart
             }
         }
-    }
-
-    fun getTotalCartPrice(): Double {
+    }    fun getTotalCartPrice(): Double {
         return _cartItems.value.sumOf { it.totalPrice }
     }
 
     fun getCartItemCount(): Int {
         return _cartItems.value.sumOf { it.quantity }
-    }    fun clearCart() {
+    }fun clearCart() {
         _cartItems.value = emptyList()
+    }
+
+    fun selectCategory(category: ProductCategory) {
+        _selectedCategory.value = category
     }
 }
